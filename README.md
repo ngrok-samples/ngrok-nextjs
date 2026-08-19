@@ -1,8 +1,6 @@
 # @ngrok/nextjs
 
-Run `next dev` with a public ngrok URL, in one command — no separate binary, no manual
-`ngrok http 3000` in a second terminal.
-
+Run `next dev` with a public ngrok URL, in one command.
 ```
 npx @ngrok/nextjs dev
 ```
@@ -18,7 +16,6 @@ JavaScript SDK — a native module, and nothing to install besides this package.
    ```
    NGROK_AUTHTOKEN=your_token_here
    ```
-   (Never commit this file — it's gitignored by `create-next-app` by default.)
 3. Run it:
    ```
    npx @ngrok/nextjs dev
@@ -30,7 +27,7 @@ You'll get a public URL bound to your ngrok account's dev domain.
 
 - Spawns `next dev` and opens an ngrok tunnel to it as one process, so stopping it
   (`Ctrl+C`) cleanly tears down both — including `next dev`'s own child processes.
-- Defaults to your account's dev domain (`abc123.ngrok-free.dev`), no config needed.
+- Defaults to your account's dev domain (`abc123.ngrok-free.dev`).
 - Syncs the tunnel URL into `.env.local` under `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` by
   default, so auth libraries and client code pick it up automatically.
 - Prints a QR code so you can open the tunnel on your phone. Disable with `NGROK_QR=false`.
@@ -39,8 +36,7 @@ You'll get a public URL bound to your ngrok account's dev domain.
 
 ## Config
 
-Optional `ngrok.config.ts` (or `.js`/`.mjs`) in your project root. Safe to commit — it holds
-no secrets, just intent:
+Optional `ngrok.config.ts` (or `.js`/`.mjs`) in your project root. 
 
 ```ts
 export default {
@@ -59,12 +55,12 @@ on_http_request:
 
 | Field | Type | Description |
 |---|---|---|
-| `url` | `string?` | Public endpoint URL, with scheme. The endpoint type (HTTP/TCP/TLS) and edge scheme are both inferred from it — `https://…` and `http://…` open an HTTP endpoint; `tls://…` a TLS endpoint; `tcp://host:port` a TCP endpoint. Omit for the account's default dev domain. |
+| `url` | `string?` | Public endpoint URL, with scheme. |
 | `pooling` | `boolean?` | Opt in to ngrok endpoint pooling so multiple endpoints can intentionally share one `url` with load-balanced routing. Required when two endpoints would otherwise collide on the same URL. |
 | `trafficPolicy` | `string?` | A raw [ngrok Traffic Policy](https://ngrok.com/docs/traffic-policy/) document (YAML or JSON) — the mechanism for auth, IP restrictions, header manipulation, webhook verification, and more. |
 | `env.url` | `string[]?` | Which env vars in `.env.local` get this endpoint's URL. |
 | `binding` | `"public" \| "internal" \| "kubernetes"?` | Ingress configuration. |
-| `endpoints` | `EndpointConfig[]?` | Paid-plan multi-endpoint case — front more than one local service from a single command. Supersedes the root-level fields above entirely. Each entry also takes `upstream` (a port number or raw address string) alongside `url`/`pooling`/`trafficPolicy`/`env`/`binding`. |
+| `endpoints` | `EndpointConfig[]?` | multi-endpoint case — front more than one local service from a single command. Supersedes the root-level fields above entirely. Each entry also takes `upstream` (a port number or raw address string) alongside `url`/`pooling`/`trafficPolicy`/`env`/`binding`. |
 
 ### Personal overrides
 
@@ -93,8 +89,7 @@ Each endpoint needs its own distinct `url`, or `pooling: true` on every endpoint
 
 ### Use your own domain instead of the default dev domain
 
-Requires a domain reserved on your ngrok account (paid plans) — you can't just make up a
-hostname. Three ways to point at it, in order of precedence:
+Requires a domain reserved on your ngrok account. Three ways to point at it, in order of precedence:
 
 **Env var** — quickest, no file needed:
 ```
@@ -119,15 +114,12 @@ export default {
 };
 ```
 
-Editing any of these takes effect the next time you run `npx @ngrok/nextjs dev` — no rebuild
-step, just restart it.
-
 ### Traffic Policy examples
 
 `trafficPolicy` is a raw [ngrok Traffic Policy](https://ngrok.com/docs/traffic-policy/)
 document (YAML or JSON) in `ngrok.config.ts`, applied to the endpoint as-is. A few common ones:
 
-**Basic auth** (already shown above):
+**Basic auth**:
 ```ts
 export default {
   trafficPolicy: `
@@ -141,7 +133,7 @@ on_http_request:
 };
 ```
 
-**IP allowlist** — only your office/VPN can reach the tunnel:
+**IP allowlist**:
 ```ts
 export default {
   trafficPolicy: `
@@ -156,8 +148,7 @@ on_http_request:
 };
 ```
 
-**Webhook signature verification** — let ngrok validate inbound webhook signatures before
-they reach your app:
+**Webhook signature verification**:
 ```ts
 export default {
   trafficPolicy: `
@@ -171,13 +162,10 @@ on_http_request:
 };
 ```
 
-No terminating action needed in any of these — this is an agent endpoint forwarding to your
-local `next dev`, not a Cloud Endpoint, so a passing request just continues on to your app.
-
 ## Requirements
 
 - Node.js 18+
-- An ngrok account (free tier works) and authtoken — required on every plan, no exceptions.
+- An ngrok account and authtoken.
 
 ## Development
 
