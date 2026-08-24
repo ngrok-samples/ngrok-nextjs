@@ -1,0 +1,70 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Test
+        run: pnpm test
+        env:
+          NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+
+      - name: Publish
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          echo "Package: ${name}@${version}"
+
+          # npm auth
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+
+          # skip any version that has already been published so reruns are safe
+          if npm view "${name}@${version}" > /dev/null 2>&1; then
+            echo "${name}@${version} already exists on npm. Skipping publish."
+          elif [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Publishing release version $version"
+            npm publish --access public
+          else
+            echo "Not a release version, skipping publish"
+          fi
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Tag Release
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email noreply@ngrok.com
+          version=$(node -p "require('./package.json').version")
+          tag="v$version"
+          echo "Tagging release: $tag"
+          git fetch --tags
+          if git rev-parse "refs/tags/$tag" > /dev/null 2>&1; then
+            echo "Tag $tag already exists, skipping tag creation."
+          else
+            git tag -a -m "Version ${version}" "$tag"
+            git push --tags
+          fi
