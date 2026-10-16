@@ -1,6 +1,6 @@
 {
   "name": "@ngrok/nextjs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Run next dev with a public ngrok URL, no separate binary or config required.",
   "license": "MIT",
   "type": "module",
