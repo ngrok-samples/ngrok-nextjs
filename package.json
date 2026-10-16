@@ -3,9 +3,17 @@
   "version": "0.1.0",
   "description": "Run next dev with a public ngrok URL, no separate binary or config required.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngrok-samples/ngrok-nextjs.git"
+  },
+  "homepage": "https://github.com/ngrok-samples/ngrok-nextjs#readme",
+  "bugs": {
+    "url": "https://github.com/ngrok-samples/ngrok-nextjs/issues"
+  },
   "type": "module",
   "bin": {
-    "ngrok-nextjs": "./dist/cli.js"
+    "ngrok-nextjs": "dist/cli.js"
   },
   "files": [
     "dist"
