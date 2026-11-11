@@ -1,6 +1,9 @@
+import { createRequire } from "node:module";
 import ngrok from "@ngrok/ngrok";
 import type { Session } from "@ngrok/ngrok";
 import type { EndpointConfig } from "./config.js";
+
+const packageVersion = (createRequire(import.meta.url)("../package.json") as { version: string }).version;
 
 export interface OpenedEndpoint {
   upstream: number | string;
@@ -115,7 +118,10 @@ export function validateUrlGroups(endpoints: EndpointConfig[]): void {
 // regardless of how many endpoints are configured or what proto each uses.
 export async function openTunnels(endpoints: EndpointConfig[]): Promise<Tunnels> {
   validateUrlGroups(endpoints);
-  const session = await new ngrok.SessionBuilder().authtokenFromEnv().connect();
+  const session = await new ngrok.SessionBuilder()
+    .authtokenFromEnv()
+    .clientInfo("ngrok-nextjs", packageVersion)
+    .connect();
 
   const opened: OpenedEndpoint[] = [];
   for (const entry of endpoints) {
